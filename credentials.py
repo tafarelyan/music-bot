@@ -1,0 +1,2 @@
+TOKEN = ''
+BOTAN_TOKEN = ''
