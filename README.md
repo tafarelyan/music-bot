@@ -1,7 +1,3 @@
-# musicbot
-A Telegram bot to download music for free
-
-
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine. 
