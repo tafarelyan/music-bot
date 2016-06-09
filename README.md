@@ -1,7 +1,8 @@
 # musicbot
 A Telegram bot to download music for free
 
-### Dependencies
+This bot uses lxml for parser data:
 > apt-get install libxml2-dev libxslt-dev
-> pip install -r requirements.txt
 
+Install dependencies
+> pip install -r requirements.txt
