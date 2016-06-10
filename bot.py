@@ -67,10 +67,6 @@ def music(bot, update):
     print("Deleted .mp3 file too")
 
 
-def suggest(bot, update):
-    pass
-
-
 def get_url(query):
     query = query.lower().split()
     query = "+".join(query)
@@ -99,7 +95,6 @@ def song_down(video_url, title):
 
 dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CommandHandler("down", down, pass_args=True))
-dp.add_handler(CommandHandler("suggest", suggest, pass_args=True))
 dp.add_handler(MessageHandler([Filters.text], music))
 
 start_bot(u)
