@@ -16,7 +16,7 @@ from credentials import TOKEN, BOTAN_TOKEN
 from start_bot import start_bot
 
 
-path_to = join(expanduser('~'), 'workspace/telegram-bots/music')
+path_to = join(expanduser('~'), 'workspace/musicbot')
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
