@@ -9,6 +9,7 @@ import youtube_dl
 from bs4 import BeautifulSoup
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardHide
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext.dispatcher import run_async
 from telegram.utils.botan import Botan
 
 from credentials import TOKEN, BOTAN_TOKEN
@@ -29,11 +30,13 @@ if BOTAN_TOKEN:
     botan = Botan(BOTAN_TOKEN)
 
 
+@run_async
 def start(bot, update):
     bot.sendMessage(update.message.chat_id, 
                     text="Hello, please type a song name to start downloading")
 
 
+@run_async
 def down(bot, update, args):
     if update.message.chat.type == 'group':
         query = ' '.join(args)
@@ -49,6 +52,7 @@ def down(bot, update, args):
                         text="Only use /down in group")
 
 
+@run_async
 def music(bot, update):
     username = update.message.chat.username
     title, url = get_url(update.message.text)
@@ -65,10 +69,6 @@ def music(bot, update):
                   title=title)
     os.remove('{}.mp3'.format(title))
     print("Deleted .mp3 file too")
-
-
-def suggest(bot, update):
-    pass
 
 
 def get_url(query):
@@ -99,7 +99,6 @@ def song_down(video_url, title):
 
 dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CommandHandler("down", down, pass_args=True))
-dp.add_handler(CommandHandler("suggest", suggest, pass_args=True))
 dp.add_handler(MessageHandler([Filters.text], music))
 
 start_bot(u)
