@@ -7,7 +7,7 @@ These instructions will get you a copy of the project up and running on your loc
 This bot uses `lxml` and `Python 3.x`.
 
 ```bash
-apt-get install libxml2-dev libxslt-dev
+$ apt-get install libxml2-dev libxslt-dev
 ```
 
 ### Installing
@@ -15,17 +15,17 @@ apt-get install libxml2-dev libxslt-dev
 To use this bot, make a clone of this repository (it works better with virtualenv).
 
 ```
-git clone https://github.com/ArrowsX/musicbot
-cd musicbot
+$ git clone https://github.com/ArrowsX/musicbot
+$ cd musicbot
 ```
 Install dependencies
 
 ```
-pip3 install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 Run it:
 ```
-python3 bot.py
+$ python3 bot.py
 ```
 ## License
 
