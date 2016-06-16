@@ -16,7 +16,7 @@ from credentials import TOKEN, BOTAN_TOKEN
 from start_bot import start_bot
 
 
-path_to = join(expanduser('~'), 'workspace/musicbot')
+path = join(expanduser('~'), 'workspace/musicbot')
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,49 +30,32 @@ if BOTAN_TOKEN:
     botan = Botan(BOTAN_TOKEN)
 
 
-@run_async
 def start(bot, update):
-    bot.sendMessage(update.message.chat_id, 
+
+    chat_id = update.message.chat_id
+
+    bot.sendMessage(chat_id, 
                     text="Hello, please type a song name to start downloading")
 
 
-@run_async
-def down(bot, update, args):
-    if update.message.chat.type == 'group':
-        query = ' '.join(args)
-        title, url = get_url(query)
-        song_down(url, title)
-        bot.sendAudio(chat_id=update.message.chat_id, 
-                      audio=open(title + '.mp3', 'rb'), 
-                      title=title)
-        os.remove(title + '.mp3')
+def admin(bot, update):
 
-    else:
-        bot.sendMessage(update.message.chat_id, 
-                        text="Only use /down in group")
+    chat_id = update.message.chat_id
+    username = update.message.chat.username
+
+    if username == 'TafarelYan':
+        bot.sendMessage(chat_id,
+                        text="Hello Tafarel")
 
 
 @run_async
 def music(bot, update):
+
     username = update.message.chat.username
-    title, url = get_url(update.message.text)
+    chat_id = update.message.chat_id
+    text = update.message.text
 
-    with open(join(path_to, 'database.csv'), 'a') as csvfile:
-        new = csv.writer(csvfile, delimiter=' ')
-        new.writerow([username, title])
-
-    bot.sendMessage(update.message.chat_id, 
-                    text="Request received\nDownloading now...")
-    song_down(url, title)
-    bot.sendAudio(update.message.chat_id, 
-                  audio=open('{}.mp3'.format(title), 'rb'), 
-                  title=title)
-    os.remove('{}.mp3'.format(title))
-    print("Deleted .mp3 file too")
-
-
-def get_url(query):
-    query = query.lower().split()
+    query = text.lower().split()
     query = "+".join(query)
     url = "https://www.youtube.com/results?search_query=" + query
     content = urlopen(url).read()
@@ -80,12 +63,16 @@ def get_url(query):
     tag = soup.find('a', {'rel': 'spf-prefetch'})
     title = tag.text
     video_url = "https://www.youtube.com" + tag.get('href')
-    return title, video_url
 
+    with open(join(path, 'database.csv'), 'a') as csvfile:
+        new = csv.writer(csvfile, delimiter=' ')
+        new.writerow([username, title])
 
-def song_down(video_url, title):
+    bot.sendMessage(chat_id, 
+                    text="Request received\nDownloading now...")
+
     ydl_opts = {
-        'outtmpl': '{}.%(ext)s'.format(title),
+        'outtmpl': title + '.%(ext)s',
         'format': 'bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
@@ -96,9 +83,15 @@ def song_down(video_url, title):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
+    bot.sendAudio(chat_id, 
+                  audio=open(title + '.mp3', 'rb'), 
+                  title=title)
+
+    os.remove(title+'.mp3')
+
 
 dp.add_handler(CommandHandler("start", start))
-dp.add_handler(CommandHandler("down", down, pass_args=True))
+dp.add_handler(CommandHandler("admin", admin))
 dp.add_handler(MessageHandler([Filters.text], music))
 
 start_bot(u)
