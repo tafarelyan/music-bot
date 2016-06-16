@@ -38,6 +38,14 @@ def user_number():
     return len(userbase)
 
 
+def lasts_songs():
+    with open(join(path, 'database.csv'), 'r', encoding='utf-8') as csvfile:
+        data = csv.reader([line.replace('\0','') for line in csvfile], 
+                          delimiter=' ')
+        lasts_songs = '\n'.join([row[1] for row in data][-5:])
+    return lasts_songs
+
+
 def start(bot, update):
     chat_id = update.message.chat_id
     bot.sendMessage(chat_id, 
@@ -51,7 +59,7 @@ def admin(bot, update):
     if username == 'TafarelYan':
         users = user_number()
         bot.sendMessage(chat_id,
-                        text='{} users registered.'.format(users))
+                        text='{} users registered.\n\n{}'.format(users, lasts_songs()))
 
 
 @run_async
