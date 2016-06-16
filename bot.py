@@ -30,27 +30,32 @@ if BOTAN_TOKEN:
     botan = Botan(BOTAN_TOKEN)
 
 
+def user_number():
+    with open(join(path, 'database.csv'), 'r', encoding='utf-8') as csvfile:
+        data = csv.reader([line.replace('\0','') for line in csvfile], 
+                          delimiter=' ')
+        userbase = list(set([row[0] for row in data if row[0] != '']))
+    return len(userbase)
+
+
 def start(bot, update):
-
     chat_id = update.message.chat_id
-
     bot.sendMessage(chat_id, 
-                    text="Hello, please type a song name to start downloading")
+                    text="Hello, please type a song name to start " \
+                         "downloading")
 
 
 def admin(bot, update):
-
     chat_id = update.message.chat_id
     username = update.message.chat.username
-
     if username == 'TafarelYan':
+        users = user_number()
         bot.sendMessage(chat_id,
-                        text="Hello Tafarel")
+                        text='This bot has {} users registered.'.format(users))
 
 
 @run_async
 def music(bot, update):
-
     username = update.message.chat.username
     chat_id = update.message.chat_id
     text = update.message.text
