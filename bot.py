@@ -51,7 +51,7 @@ def admin(bot, update):
     if username == 'TafarelYan':
         users = user_number()
         bot.sendMessage(chat_id,
-                        text='This bot has {} users registered.'.format(users))
+                        text='{} users registered.'.format(users))
 
 
 @run_async
