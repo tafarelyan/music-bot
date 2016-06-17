@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 import os
-import csv
 import logging
 from urllib.request import urlopen
-from os.path import join, expanduser
 
 import youtube_dl
 from bs4 import BeautifulSoup
@@ -16,8 +14,6 @@ from credentials import TOKEN, BOTAN_TOKEN
 from start_bot import start_bot
 
 
-path = join(expanduser('~'), 'workspace/musicbot')
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
@@ -28,22 +24,6 @@ dp = u.dispatcher
 botan = False
 if BOTAN_TOKEN:
     botan = Botan(BOTAN_TOKEN)
-
-
-def user_number():
-    with open(join(path, 'database.csv'), 'r', encoding='utf-8') as csvfile:
-        data = csv.reader([line.replace('\0','') for line in csvfile], 
-                          delimiter=' ')
-        userbase = list(set([row[0] for row in data if row[0] != '']))
-    return len(userbase)
-
-
-def lasts_songs():
-    with open(join(path, 'database.csv'), 'r', encoding='utf-8') as csvfile:
-        data = csv.reader([line.replace('\0','') for line in csvfile], 
-                          delimiter=' ')
-        lasts_songs = '\n'.join([row[1] for row in data][-5:])
-    return lasts_songs
 
 
 def start(bot, update):
@@ -77,6 +57,7 @@ def music(bot, update):
     title = tag.text
     video_url = "https://www.youtube.com" + tag.get('href')
 
+    save(user_id, username, first_name, last_name, title, video_url)
     with open(join(path, 'database.csv'), 'a') as csvfile:
         new = csv.writer(csvfile, delimiter=' ')
         new.writerow([username, title])
