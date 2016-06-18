@@ -39,7 +39,7 @@ def admin(bot, update):
     username = update.message.chat.username
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
-                        text='{} users registered.\n\n{}'.format(users, recent))
+                        text='{} users registered.\n\n{}'.format(users(), recent()))
 
 
 @run_async
