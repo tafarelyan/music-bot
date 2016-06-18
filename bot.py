@@ -12,6 +12,7 @@ from telegram.utils.botan import Botan
 
 from credentials import TOKEN, BOTAN_TOKEN
 from start_bot import start_bot
+from admin import save, recent, users
 
 
 logging.basicConfig(
@@ -37,14 +38,16 @@ def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
     if username == 'TafarelYan':
-        users = user_number()
         bot.sendMessage(chat_id,
-                        text='{} users registered.\n\n{}'.format(users, lasts_songs()))
+                        text='{} users registered.\n\n{}'.format(users, recent))
 
 
 @run_async
 def music(bot, update):
+    user_id = update.message.from_user.id
     username = update.message.chat.username
+    first_name = update.message.from_user.first_name
+    last_name = update.message.from_user.last_name
     chat_id = update.message.chat_id
     text = update.message.text
 
@@ -58,9 +61,6 @@ def music(bot, update):
     video_url = "https://www.youtube.com" + tag.get('href')
 
     save(user_id, username, first_name, last_name, title, video_url)
-    with open(join(path, 'database.csv'), 'a') as csvfile:
-        new = csv.writer(csvfile, delimiter=' ')
-        new.writerow([username, title])
 
     bot.sendMessage(chat_id, 
                     text="Request received\nDownloading now...")
