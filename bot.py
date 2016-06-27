@@ -31,7 +31,7 @@ def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
 
-    usernumbers = user()
+    usernumber = user()
     last_songs = recent()
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,

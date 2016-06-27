@@ -46,7 +46,7 @@ def save(*args):
 
 
 def user():
-    with open('database.csv', 'r', encoding='utf-8') as csvfile:
+    with open('database.csv', 'r') as csvfile:
         data = csv.reader([line.replace('\0','') for line in csvfile], 
                           delimiter=',')
         users = len(set([row[0] for row in data]))
@@ -54,7 +54,7 @@ def user():
 
 
 def recent():
-    with open('database.csv', 'r', encoding='utf-8') as csvfile:
+    with open('database.csv', 'r') as csvfile:
         data = csv.reader([line.replace('\0','') for line in csvfile], 
                           delimiter=',')
         recent = '\n'.join([row[4] for row in data][-5:])
