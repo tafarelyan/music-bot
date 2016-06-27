@@ -10,13 +10,8 @@ from bs4 import BeautifulSoup
 
 
 def search(text):
-<<<<<<< HEAD
     query = '+'.join(text.lower().split())
     url = 'https://www.youtube.com/results?search_query=' + query
-=======
-    query = "+".join(text.lower().split())
-    url = "https://www.youtube.com/results?search_query=" + query
->>>>>>> ca510726c7ce658bcac9c8b00d818092cb023104
     content = urlopen(url).read()
     soup = BeautifulSoup(content, 'lxml')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
@@ -26,11 +21,10 @@ def search(text):
     return title, video_url
 
 
-def download(video_url):
+def download(title, video_url):
     ydl_opts = {
         'outtmpl': title + '.%(ext)s',
-        'format': 'bestaudio/best',
-        'postprocessors': [{
+        'format': 'bestaudio/best', 'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',

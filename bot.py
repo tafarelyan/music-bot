@@ -54,7 +54,7 @@ def music(bot, update):
     bot.sendMessage(chat_id, 
                     text="Request received\nDownloading now...")
 
-    download(video_url)
+    download(title, video_url)
     bot.sendAudio(chat_id, 
                   audio=open(title + '.mp3', 'rb'), 
                   title=title)
