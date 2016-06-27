@@ -1,3 +1,5 @@
+#!//usr/bin/env python3
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import logging
 
@@ -7,7 +9,7 @@ from telegram.ext.dispatcher import run_async
 
 from credentials import TOKEN
 from start_bot import start_bot
-from custom import search, download, save, users, recent
+from custom import search, download, save, user, recent
 
 
 logging.basicConfig(
@@ -29,7 +31,7 @@ def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
 
-    usernumbers = users()
+    usernumbers = user()
     last_songs = recent()
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
