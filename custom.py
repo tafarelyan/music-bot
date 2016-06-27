@@ -10,9 +10,13 @@ from bs4 import BeautifulSoup
 
 
 def search(text):
-    query = text.lower().split()
-    query = '+'.join(query)
+<<<<<<< HEAD
+    query = '+'.join(text.lower().split())
     url = 'https://www.youtube.com/results?search_query=' + query
+=======
+    query = "+".join(text.lower().split())
+    url = "https://www.youtube.com/results?search_query=" + query
+>>>>>>> ca510726c7ce658bcac9c8b00d818092cb023104
     content = urlopen(url).read()
     soup = BeautifulSoup(content, 'lxml')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
