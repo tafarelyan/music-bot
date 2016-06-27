@@ -9,7 +9,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
 
 from credentials import TOKEN
-from start_bot import start_bot
 from custom import search, download, save, user, recent
 
 
@@ -23,6 +22,7 @@ dp = u.dispatcher
 
 def start(bot, update):
     chat_id = update.message.chat_id
+
     bot.sendMessage(chat_id, 
                     text="Hello, please type a song name to start " \
                          "downloading")
@@ -64,5 +64,5 @@ dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CommandHandler("admin", admin))
 dp.add_handler(MessageHandler([Filters.text], music))
 
-start_bot(u)
+u.start_polling()
 u.idle()
