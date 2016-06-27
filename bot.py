@@ -1,18 +1,13 @@
 from __future__ import unicode_literals
-import os
 import logging
-from urllib.request import urlopen
 
-import youtube_dl
-from bs4 import BeautifulSoup
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardHide
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from telegram.utils.botan import Botan
 
-from credentials import TOKEN, BOTAN_TOKEN
+from credentials import TOKEN
 from start_bot import start_bot
-from admin import save, recent, users
+from custom import search, download, save, users, recent
 
 
 logging.basicConfig(
@@ -21,10 +16,6 @@ logging.basicConfig(
 
 u = Updater(TOKEN)
 dp = u.dispatcher
-
-botan = False
-if BOTAN_TOKEN:
-    botan = Botan(BOTAN_TOKEN)
 
 
 def start(bot, update):
@@ -37,9 +28,12 @@ def start(bot, update):
 def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
+
+    usernumbers = users()
+    last_songs = recent()
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
-                        text='{} users registered.\n\n{}'.format(users(), recent()))
+                        text='{} users registered.\n\n{}'.format(usernumber, last_songs))
 
 
 @run_async
@@ -51,37 +45,15 @@ def music(bot, update):
     chat_id = update.message.chat_id
     text = update.message.text
 
-    query = text.lower().split()
-    query = "+".join(query)
-    url = "https://www.youtube.com/results?search_query=" + query
-    content = urlopen(url).read()
-    soup = BeautifulSoup(content, "lxml")
-    tag = soup.find('a', {'rel': 'spf-prefetch'})
-    title = tag.text
-    video_url = "https://www.youtube.com" + tag.get('href')
-
+    title, video_url = search(text)
     save(user_id, username, first_name, last_name, title, video_url)
-
     bot.sendMessage(chat_id, 
                     text="Request received\nDownloading now...")
 
-    ydl_opts = {
-        'outtmpl': title + '.%(ext)s',
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-    }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-
+    download(video_url)
     bot.sendAudio(chat_id, 
                   audio=open(title + '.mp3', 'rb'), 
                   title=title)
-
-    os.remove(title+'.mp3')
 
 
 dp.add_handler(CommandHandler("start", start))
