@@ -36,7 +36,7 @@ def admin(bot, update):
     last_songs = recent()
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
-                        text='{} users registered.\n\n{}'.format(usernumber, last_songs))
+                        text="{} users registered.\n\n{}".format(usernumber, last_songs))
 
 
 @run_async
@@ -45,6 +45,7 @@ def music(bot, update):
     username = update.message.chat.username
     first_name = update.message.from_user.first_name
     last_name = update.message.from_user.last_name
+
     chat_id = update.message.chat_id
     text = update.message.text
 
