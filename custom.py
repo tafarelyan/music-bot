@@ -10,8 +10,7 @@ from bs4 import BeautifulSoup
 
 
 def search(text):
-    query = text.lower().split()
-    query = "+".join(query)
+    query = "+".join(text.lower().split())
     url = "https://www.youtube.com/results?search_query=" + query
     content = urlopen(url).read()
     soup = BeautifulSoup(content, "lxml")
