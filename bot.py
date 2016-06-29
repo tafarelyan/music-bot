@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+import os
 import logging
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardHide
@@ -58,6 +59,7 @@ def music(bot, update):
     bot.sendAudio(chat_id, 
                   audio=open(title + '.mp3', 'rb'), 
                   title=title)
+    os.remove(title + '.mp3')
 
 
 dp.add_handler(CommandHandler("start", start))

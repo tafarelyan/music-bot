@@ -33,8 +33,6 @@ def download(title, video_url):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
-    os.remove(title + '.mp3')
-
 
 def save(*args):
     line = [arg for arg in args]
