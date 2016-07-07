@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
 import os
 import logging
 
-from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardHide
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
+from pony.orm import db_session, select
 
 from credentials import TOKEN
-from custom import search, download, save, user, recent
+from custom import search, download
+from database import db
 
+from user import User
+
+
+DB_NAME = 'bot.sqlite'
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -19,6 +23,10 @@ logging.basicConfig(
 
 u = Updater(TOKEN)
 dp = u.dispatcher
+
+db.bind('sqlite', DB_NAME, create_db=True)
+db.generate_mapping(create_tables=True)
+
 
 
 def start(bot, update):
@@ -33,11 +41,13 @@ def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
 
-    usernumber = user()
-    last_songs = recent()
+    with db_session:
+        users = len(select(p.user_id for p in User)[:])
+        last5 = '\n'.join(select(p.title for p in User)[:][-5:])
+
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
-                        text="{} users registered.\n\n{}".format(usernumber, last_songs))
+                        text="{} users registered.\n\n{}".format(users, last5))
 
 
 @run_async
@@ -51,7 +61,14 @@ def music(bot, update):
     text = update.message.text
 
     title, video_url = search(text)
-    save(user_id, username, first_name, last_name, title, video_url)
+    with db_session:
+        User(user_id=user_id,
+             username=username,
+             first_name=first_name,
+             last_name=last_name,
+             title=title,
+             video_url=video_url)
+
     bot.sendMessage(chat_id, 
                     text="Request received\nDownloading now...")
 

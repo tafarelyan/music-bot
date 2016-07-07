@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import os
-import csv
 from urllib.request import urlopen
 
 import youtube_dl
@@ -32,26 +27,3 @@ def download(title, video_url):
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
-
-
-def save(*args):
-    line = [arg for arg in args]
-    with open('database.csv', 'a') as csvfile:
-        new = csv.writer(csvfile, delimiter=',')
-        new.writerow(line)
-
-
-def user():
-    with open('database.csv', 'r') as csvfile:
-        data = csv.reader([line.replace('\0','') for line in csvfile], 
-                          delimiter=',')
-        users = len(set([row[0] for row in data]))
-    return users
-
-
-def recent():
-    with open('database.csv', 'r') as csvfile:
-        data = csv.reader([line.replace('\0','') for line in csvfile], 
-                          delimiter=',')
-        recent = '\n'.join([row[4] for row in data][-5:])
-    return recent
