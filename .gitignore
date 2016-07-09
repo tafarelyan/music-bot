@@ -1,6 +1,7 @@
 # Personal files
 database.csv
 nohup.out
+bot.sqlite
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

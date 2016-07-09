@@ -8,7 +8,7 @@ def search(text):
     query = '+'.join(text.lower().split())
     url = 'https://www.youtube.com/results?search_query=' + query
     content = urlopen(url).read()
-    soup = BeautifulSoup(content, 'lxml')
+    soup = BeautifulSoup(content, 'html.parser')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
     title = tag.text
     video_url = 'https://www.youtube.com' + tag.get('href')
