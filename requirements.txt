@@ -1,6 +1,6 @@
 beautifulsoup4==4.4.1
 future==0.15.2
 pkg-resources==0.0.0
+pony==0.6.5
 python-telegram-bot==4.2.1
-SQLAlchemy==1.0.14
 youtube-dl==2016.6.25
