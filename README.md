@@ -2,13 +2,6 @@
 
 These instructions will get you a copy of the project up and running on your local machine. 
 
-### Prerequisities
-
-This bot uses `lxml` and `Python 3.x`.
-
-```bash
-$ apt-get install libxml2-dev libxslt-dev
-```
 
 ### Installing
 
