@@ -3,16 +3,21 @@
 from __future__ import unicode_literals
 import os
 import logging
+from urllib.request import urlopen
 
+import youtube_dl
+from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from sqlalchemy.orm import Session
+from pony.orm import db_session, select
 
 from credentials import TOKEN
-from custom import search, download
+from database import db
 
-from user import engine, User
+from user import User
 
+
+DB_NAME = 'db.sqlite'
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -21,7 +26,8 @@ logging.basicConfig(
 u = Updater(TOKEN)
 dp = u.dispatcher
 
-session = Session(bind=engine)
+db.bind('sqlite', DB_NAME, create_db=True)
+db.generate_mapping(create_tables=True)
 
 
 def start(bot, update):
@@ -35,8 +41,9 @@ def admin(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
 
-    users = len(set(session.query(User.user_id).all()))
-    last5 = '\n'.join([title[0] for title in session.query(User.title)[-5:]])
+    with db_session:
+        users = len(select(u.user_id for u in User))
+        last5 = '\n'.join(select(u.title for u in User)[:][-5:])
 
     if username == 'TafarelYan':
         bot.sendMessage(chat_id,
@@ -54,9 +61,13 @@ def music(bot, update):
     text = update.message.text
 
     title, video_url = search(text)
-    session.add(User(user_id=user_id,username=username,first_name=first_name,
-                     last_name=last_name,title=title,video_url=video_url))
-    session.commit()
+    with db_session:
+        User(user_id=user_id,
+             username=username,
+             first_name=first_name,
+             last_name=last_name,
+             title=title,
+             video_url=video_url)
 
     bot.sendMessage(chat_id,
                     text="Request received\nDownloading now...")
@@ -66,6 +77,31 @@ def music(bot, update):
                   audio=open(title + '.mp3', 'rb'),
                   title=title)
     os.remove(title + '.mp3')
+
+
+def search(text):
+    query = '+'.join(text.lower().split())
+    url = 'https://www.youtube.com/results?search_query=' + query
+    content = urlopen(url).read()
+    soup = BeautifulSoup(content, 'html.parser')
+    tag = soup.find('a', {'rel': 'spf-prefetch'})
+    title = tag.text
+    video_url = 'https://www.youtube.com' + tag.get('href')
+
+    return title, video_url
+
+
+def download(title, video_url):
+    ydl_opts = {
+        'outtmpl': title + '.%(ext)s',
+        'format': 'bestaudio/best', 'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([video_url])
 
 
 dp.add_handler(CommandHandler("start", start))
