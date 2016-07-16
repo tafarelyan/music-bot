@@ -3,11 +3,14 @@
 from __future__ import unicode_literals
 import os
 import logging
-from urllib.request import urlopen
+from uuid import uuid4
+from urllib.request import urlopen, urlretrieve
 
 import youtube_dl
 from bs4 import BeautifulSoup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
+    InlineQueryHandler
 from telegram.ext.dispatcher import run_async
 from pony.orm import db_session, select
 
@@ -79,6 +82,23 @@ def music(bot, update):
     os.remove(title + '.mp3')
 
 
+def inline_search(bot, update):
+    query = update.inline_query.query
+
+    title, video_url = search(query)
+
+    results = list()
+    
+    results.append(InlineQueryResultArticle(id=uuid4(),
+                                            title=title,
+                                            input_message_content=InputTextMessageContent(
+                                                title),
+                                            url=video_url,
+                                            thumb_url=get_thumb(query)))
+e
+    bot.answerInlineQuery(update.inline_query.id, results=results)
+
+
 def search(text):
     query = '+'.join(text.lower().split())
     url = 'https://www.youtube.com/results?search_query=' + query
@@ -87,8 +107,16 @@ def search(text):
     tag = soup.find('a', {'rel': 'spf-prefetch'})
     title = tag.text
     video_url = 'https://www.youtube.com' + tag.get('href')
-
     return title, video_url
+
+
+def get_thumb(text):
+    query = '+'.join(text.lower().split())
+    url = 'https://www.youtube.com/results?search_query=' + query
+    content = urlopen(url).read()
+    soup = BeautifulSoup(content, 'html.parser')
+    thumb = soup.find('span', {'class': 'yt-thumb-simple'}).find('img')
+    return thumb.get('src')
 
 
 def download(title, video_url):
@@ -107,6 +135,7 @@ def download(title, video_url):
 dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CommandHandler("admin", admin))
 dp.add_handler(MessageHandler([Filters.text], music))
+dp.add_handler(InlineQueryHandler(inline_search))
 
 u.start_polling()
 u.idle()
