@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import os
 import logging
 from uuid import uuid4
-from urllib.request import urlopen, urlretrieve
+from urllib.request import urlopen
 
 import youtube_dl
 from bs4 import BeautifulSoup
@@ -26,7 +26,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-u = Updater(TOKEN)
+u = Updater(TOKEN, workers=10)
 dp = u.dispatcher
 
 db.bind('sqlite', DB_NAME, create_db=True)
@@ -82,20 +82,21 @@ def music(bot, update):
     os.remove(title + '.mp3')
 
 
+@run_async
 def inline_search(bot, update):
     query = update.inline_query.query
 
     title, video_url = search(query)
 
     results = list()
-    
-    results.append(InlineQueryResultArticle(id=uuid4(),
-                                            title=title,
-                                            input_message_content=InputTextMessageContent(
-                                                title),
-                                            url=video_url,
-                                            thumb_url=get_thumb(query)))
-e
+
+    results.append(InlineQueryResultArticle(
+        id=uuid4(),
+        title=title,
+        input_message_content=InputTextMessageContent(title),
+        url=video_url,
+        thumb_url=get_thumb(query)))
+
     bot.answerInlineQuery(update.inline_query.id, results=results)
 
 
