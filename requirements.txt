@@ -1,7 +1,8 @@
 beautifulsoup4==4.4.1
 certifi==2016.2.28
 future==0.15.2
-pony==0.6.5
+pymysql==0.7.9
 python-telegram-bot==5.0.0
+sqlalchemy==1.0.15
 urllib3==1.16
 youtube-dl==2016.7.16

@@ -3,70 +3,45 @@
 from __future__ import unicode_literals
 import os
 import logging
-from uuid import uuid4
 from urllib.request import urlopen
 
 import youtube_dl
 from bs4 import BeautifulSoup
-from telegram import InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
-    InlineQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from pony.orm import db_session, select
+from sqlalchemy.orm import Session
 
-from credentials import TOKEN
-from database import db
+from credentials import ENGINE, TOKEN
+from database import Backup
 
-from user import User
-
-
-DB_NAME = 'db.sqlite'
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-u = Updater(TOKEN, workers=10)
+session = Session(bind=ENGINE)
+u = Updater(TOKEN, workers=32)
 dp = u.dispatcher
-
-db.bind('sqlite', DB_NAME, create_db=True)
-db.generate_mapping(create_tables=True)
 
 
 def start(bot, update):
-    chat_id = update.message.chat_id
-
-    bot.sendMessage(chat_id,
-                    text="Hello, please type a song name to start downloading")
+    bot.sendMessage(update.message.chat_id, text="Music Downloader")
 
 
 @run_async
 def music(bot, update):
-    user_id = update.message.from_user.id
-    username = update.message.chat.username
-    first_name = update.message.from_user.first_name
-    last_name = update.message.from_user.last_name
-
-    chat_id = update.message.chat_id
-    text = update.message.text
-
-    title, video_url = search(text)
-    with db_session:
-        User(user_id=user_id,
-             username=username,
-             first_name=first_name,
-             last_name=last_name,
-             title=title,
-             video_url=video_url)
-
-    bot.sendMessage(chat_id,
-                    text="Request received\nDownloading now...")
-
+    title, video_url = search(update.message.text)
+    session.add(Backup(title=title, video_url=video_url))
+    session.commit()
     download(title, video_url)
-    bot.sendAudio(chat_id,
+    bot.sendAudio(update.message.chat_id,
                   audio=open(title + '.mp3', 'rb'),
                   title=title)
     os.remove(title + '.mp3')
+
+
+def backup(bot, update):
+    pass
 
 
 def search(text):
@@ -94,8 +69,8 @@ def download(title, video_url):
 
 
 dp.add_handler(CommandHandler("start", start))
+dp.add_handler(CommandHandler("backup", backup))
 dp.add_handler(MessageHandler([Filters.text], music))
-dp.add_handler(InlineQueryHandler(inline_search))
 
 u.start_polling()
 u.idle()
