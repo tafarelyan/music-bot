@@ -40,19 +40,6 @@ def start(bot, update):
                     text="Hello, please type a song name to start downloading")
 
 
-def admin(bot, update):
-    chat_id = update.message.chat_id
-    username = update.message.chat.username
-
-    with db_session:
-        users = len(select(u.user_id for u in User))
-        last5 = '\n'.join(select(u.title for u in User)[:][-5:])
-
-    if username == 'TafarelYan':
-        bot.sendMessage(chat_id,
-                        text="{} users registered.\n\n{}".format(users, last5))
-
-
 @run_async
 def music(bot, update):
     user_id = update.message.from_user.id
@@ -82,24 +69,6 @@ def music(bot, update):
     os.remove(title + '.mp3')
 
 
-@run_async
-def inline_search(bot, update):
-    query = update.inline_query.query
-
-    title, video_url = search(query)
-
-    results = list()
-
-    results.append(InlineQueryResultArticle(
-        id=uuid4(),
-        title=title,
-        input_message_content=InputTextMessageContent(title),
-        url=video_url,
-        thumb_url=get_thumb(query)))
-
-    bot.answerInlineQuery(update.inline_query.id, results=results)
-
-
 def search(text):
     query = '+'.join(text.lower().split())
     url = 'https://www.youtube.com/results?search_query=' + query
@@ -109,15 +78,6 @@ def search(text):
     title = tag.text
     video_url = 'https://www.youtube.com' + tag.get('href')
     return title, video_url
-
-
-def get_thumb(text):
-    query = '+'.join(text.lower().split())
-    url = 'https://www.youtube.com/results?search_query=' + query
-    content = urlopen(url).read()
-    soup = BeautifulSoup(content, 'html.parser')
-    thumb = soup.find('span', {'class': 'yt-thumb-simple'}).find('img')
-    return thumb.get('src')
 
 
 def download(title, video_url):
@@ -134,7 +94,6 @@ def download(title, video_url):
 
 
 dp.add_handler(CommandHandler("start", start))
-dp.add_handler(CommandHandler("admin", admin))
 dp.add_handler(MessageHandler([Filters.text], music))
 dp.add_handler(InlineQueryHandler(inline_search))
 
