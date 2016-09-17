@@ -16,7 +16,9 @@ Install dependencies
 ```
 $ pip3 install -r requirements.txt
 ```
-Run it:
+First, Get a bot token from [@BotFather](http://telegram.me/BotFather) and place it in `credentials.py`
+
+Then run it:
 ```
 $ python3 bot.py
 ```
