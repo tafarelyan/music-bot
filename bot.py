@@ -8,7 +8,6 @@ from urllib.request import urlopen
 import youtube_dl
 from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from telegram.ext.dispatcher import run_async
 from sqlalchemy.orm import Session
 
 from credentials import ENGINE, TOKEN
@@ -20,7 +19,7 @@ logging.basicConfig(
     level=logging.INFO)
 
 session = Session(bind=ENGINE)
-u = Updater(TOKEN, workers=32)
+u = Updater(TOKEN)
 dp = u.dispatcher
 
 
@@ -28,7 +27,6 @@ def start(bot, update):
     bot.sendMessage(update.message.chat_id, text="Music Downloader")
 
 
-@run_async
 def music(bot, update):
     title, video_url = search(update.message.text)
     session.add(Backup(title=title, video_url=video_url))
