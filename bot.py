@@ -18,7 +18,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-session = Session(bind=ENGINE)
 u = Updater(TOKEN)
 dp = u.dispatcher
 
@@ -29,17 +28,15 @@ def start(bot, update):
 
 def music(bot, update):
     title, video_url = search(update.message.text)
+    session = Session(bind=ENGINE)
     session.add(Backup(title=title, video_url=video_url))
     session.commit()
+    session.close()
     download(title, video_url)
     bot.sendAudio(update.message.chat_id,
                   audio=open(title + '.mp3', 'rb'),
                   title=title)
     os.remove(title + '.mp3')
-
-
-def backup(bot, update):
-    pass
 
 
 def search(text):
@@ -67,7 +64,6 @@ def download(title, video_url):
 
 
 dp.add_handler(CommandHandler("start", start))
-dp.add_handler(CommandHandler("backup", backup))
 dp.add_handler(MessageHandler([Filters.text], music))
 
 u.start_polling()
