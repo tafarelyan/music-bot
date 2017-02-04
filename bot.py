@@ -8,35 +8,27 @@ from urllib.request import urlopen
 import youtube_dl
 from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from sqlalchemy.orm import Session
-
-from credentials import ENGINE, TOKEN
-from database import Backup
 
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-u = Updater(TOKEN)
+u = Updater('YOUR-TOKEN')
 dp = u.dispatcher
+
+if not os.path.exists('music'):
+    os.makedirs('music')
 
 
 def start(bot, update):
-    bot.sendMessage(update.message.chat_id, text="Music Downloader")
+    update.message.reply_text("Music Downloader")
 
 
 def music(bot, update):
     title, video_url = search(update.message.text)
-    session = Session(bind=ENGINE)
-    session.add(Backup(title=title, video_url=video_url))
-    session.commit()
-    session.close()
-    download(title, video_url)
-    bot.sendAudio(update.message.chat_id,
-                  audio=open(title + '.mp3', 'rb'),
-                  title=title)
-    os.remove(title + '.mp3')
+    music_dict = download(title, video_url)
+    update.message.reply_audio(**music_dict)
 
 
 def search(text):
@@ -52,8 +44,9 @@ def search(text):
 
 def download(title, video_url):
     ydl_opts = {
-        'outtmpl': title + '.%(ext)s',
-        'format': 'bestaudio/best', 'postprocessors': [{
+        'outtmpl': 'music/{}.%(ext)s'.format(title),
+        'format': 'bestaudio/best',
+        'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
@@ -62,9 +55,14 @@ def download(title, video_url):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
+    return {
+        'audio': open('music/{}.mp3'.format(title), 'rb'),
+        'title': title,
+    }
+
 
 dp.add_handler(CommandHandler("start", start))
-dp.add_handler(MessageHandler([Filters.text], music))
+dp.add_handler(MessageHandler(Filters.text, music))
 
 u.start_polling()
 u.idle()
