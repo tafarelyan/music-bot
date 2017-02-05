@@ -1,5 +1,3 @@
 beautifulsoup4
-PyMySQL
 python-telegram-bot
-SQLAlchemy
 youtube-dl
