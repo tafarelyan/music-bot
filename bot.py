@@ -44,7 +44,9 @@ def search(text):
 
 def download(full_title, video_url):
     try:
-        author, title = full_title.split(' - ')
+        author, title = full_title.split('-')
+        title = title.strip()
+        author = author.strip()
     except:
         title = full_title
 
