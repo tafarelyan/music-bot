@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 import os
 import logging
-from urllib.request import urlopen
 
+import requests
 import youtube_dl
 from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -32,10 +32,9 @@ def music(bot, update):
 
 
 def search(text):
-    query = '+'.join(text.lower().split())
-    url = 'https://www.youtube.com/results?search_query=' + query
-    content = urlopen(url).read()
-    soup = BeautifulSoup(content, 'html.parser')
+    url = 'https://www.youtube.com/results'
+    r = requests.get(url, params={'search_query': text.replace(' ', '+')})
+    soup = BeautifulSoup(r.content, 'html.parser')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
     full_title = tag.text
     video_url = 'https://www.youtube.com' + tag.get('href')
