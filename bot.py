@@ -14,12 +14,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-u = Updater('YOUR-TOKEN')
-dp = u.dispatcher
-
-if not os.path.exists('music'):
-    os.makedirs('music')
-
 
 def start(bot, update):
     update.message.reply_text("Music Downloader")
@@ -33,7 +27,7 @@ def music(bot, update):
 
 def search(text):
     url = 'https://www.youtube.com/results'
-    r = requests.get(url, params={'search_query': text.replace(' ', '+')})
+    r = requests.get(url, params={'search_query': text})
     soup = BeautifulSoup(r.content, 'html.parser')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
     full_title = tag.text
@@ -73,8 +67,19 @@ def download(full_title, video_url):
 
     return music_dict
 
-dp.add_handler(CommandHandler("start", start))
-dp.add_handler(MessageHandler(Filters.text, music))
 
-u.start_polling()
-u.idle()
+def main():
+    if not os.path.exists('music'):
+        os.makedirs('music')
+
+    u = Updater('YOUR-TOKEN')
+    dp = u.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.text, music))
+
+    u.start_polling()
+    u.idle()
+
+if __name__ == '__main__':
+    main()
