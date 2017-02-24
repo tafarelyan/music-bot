@@ -26,12 +26,11 @@ def music(bot, update):
 
 
 def search(text):
-    url = 'https://www.youtube.com/results'
-    r = requests.get(url, params={'search_query': text})
+    url = 'https://www.youtube.com'
+    r = requests.get(url + '/results', params={'search_query': text})
     soup = BeautifulSoup(r.content, 'html.parser')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
-    full_title = tag.text
-    video_url = 'https://www.youtube.com' + tag.get('href')
+    full_title, video_url  = tag.text, url + tag['href']
     return full_title, video_url
 
 
