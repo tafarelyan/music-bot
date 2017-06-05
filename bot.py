@@ -20,9 +20,10 @@ def start(bot, update):
 
 
 def music(bot, update):
-    full_title, video_url = search(update.message.text)
-    music_dict = download(full_title, video_url)
+    title, video_url = search(update.message.text)
+    music_dict = download(title, video_url)
     update.message.reply_audio(**music_dict)
+    os.remove(title + '.mp3')
 
 
 def search(text):
@@ -30,20 +31,13 @@ def search(text):
     r = requests.get(url + '/results', params={'search_query': text})
     soup = BeautifulSoup(r.content, 'html.parser')
     tag = soup.find('a', {'rel': 'spf-prefetch'})
-    full_title, video_url  = tag.text, url + tag['href']
-    return full_title, video_url
+    title, video_url = tag.text, url + tag['href']
+    return title, video_url
 
 
-def download(full_title, video_url):
-    try:
-        author, title = full_title.split('-')
-        title = title.strip()
-        author = author.strip()
-    except:
-        title = full_title
-
+def download(title, video_url):
     ydl_opts = {
-        'outtmpl': 'music/{}.%(ext)s'.format(title),
+        'outtmpl': '{}.%(ext)s'.format(title),
         'format': 'bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
@@ -54,23 +48,13 @@ def download(full_title, video_url):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
-    music_dict = {
-        'audio': open('music/{}.mp3'.format(title), 'rb'),
+    return {
+        'audio': open('{}.mp3'.format(title), 'rb'),
         'title': title,
     }
 
-    try:
-        music_dict['performer'] = author
-    except:
-        pass
-
-    return music_dict
-
 
 def main():
-    if not os.path.exists('music'):
-        os.makedirs('music')
-
     u = Updater('YOUR-TOKEN')
     dp = u.dispatcher
 
@@ -79,6 +63,7 @@ def main():
 
     u.start_polling()
     u.idle()
+
 
 if __name__ == '__main__':
     main()
