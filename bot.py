@@ -15,23 +15,17 @@ logging.basicConfig(
     level=logging.INFO)
 
 
-def start(bot, update):
-    update.message.reply_text("Music Downloader")
-
-
-def music(bot, update):
-    title, video_url = search(update.message.text)
-    music_dict = download(title, video_url)
-    update.message.reply_audio(**music_dict)
-    os.remove(title + '.mp3')
-
-
-def search(text):
+def search_youtube(text):
     url = 'https://www.youtube.com'
-    r = requests.get(url + '/results', params={'search_query': text})
-    soup = BeautifulSoup(r.content, 'html.parser')
-    tag = soup.find('a', {'rel': 'spf-prefetch'})
-    title, video_url = tag.text, url + tag['href']
+
+    while True:
+        r = requests.get(url + '/results', params={'search_query': text})
+        soup = BeautifulSoup(r.content, 'html.parser')
+        tag = soup.find('a', {'rel': 'spf-prefetch'})
+        title, video_url = tag.text, url + tag['href']
+        if 'googleads' not in video_url:
+            break
+
     return title, video_url
 
 
@@ -54,6 +48,17 @@ def download(title, video_url):
     }
 
 
+def start(bot, update):
+    update.message.reply_text("Music Downloader")
+
+
+def music(bot, update):
+    title, video_url = search_youtube(update.message.text)
+    music_dict = download(title, video_url)
+    update.message.reply_audio(**music_dict)
+    os.remove(title + '.mp3')
+
+
 def main():
     u = Updater('YOUR-TOKEN')
     dp = u.dispatcher
@@ -63,7 +68,6 @@ def main():
 
     u.start_polling()
     u.idle()
-
 
 if __name__ == '__main__':
     main()
