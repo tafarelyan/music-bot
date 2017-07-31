@@ -16,12 +16,12 @@ Install dependencies
 ```
 $ pip3 install -r requirements.txt
 ```
-First, Get a bot token from [@BotFather](http://telegram.me/BotFather) and place it in `credentials.py`. Also, make sure you make the database connection you want in TOKEN.
+Get a bot token from [@BotFather](http://telegram.me/BotFather) and replace YOUR-TOKEN in `bot.py` with the token you just got.
 
-Then run it:
+Run it:
 ```
 $ python3 bot.py
 ```
 ## License
 
-This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPLv3 License - see [LICENSE](LICENSE) for details.
