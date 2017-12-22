@@ -18,15 +18,12 @@ logging.basicConfig(
 def search_youtube(text):
     url = 'https://www.youtube.com'
 
-    while True:
-        r = requests.get(url + '/results', params={'search_query': text})
-        soup = BeautifulSoup(r.content, 'html.parser')
-        tag = soup.find('a', {'rel': 'spf-prefetch'})
+    r = requests.get(url + '/results', params={'search_query': text})
+    soup = BeautifulSoup(r.content, 'html.parser')
+    for tag in soup.find_all('a', {'rel': 'spf-prefetch'}):
         title, video_url = tag.text, url + tag['href']
         if 'googleads' not in video_url:
-            break
-
-    return title, video_url
+            return title, video_url
 
 
 def download(title, video_url):
