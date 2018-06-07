@@ -52,7 +52,7 @@ def start(bot, update):
 def music(bot, update):
     title, video_url = search_youtube(update.message.text)
     music_dict = download(title, video_url)
-    update.message.reply_audio(**music_dict)
+    update.message.reply_audio(**music_dict, timeout=9999)
     os.remove(title + '.mp3')
 
 
