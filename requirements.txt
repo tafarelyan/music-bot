@@ -1,4 +1,0 @@
-beautifulsoup4
-python-telegram-bot
-requests
-youtube-dl
