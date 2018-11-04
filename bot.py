@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 import os
 import logging
+from unicodedata import normalize
 
 import requests
 import youtube_dl
@@ -15,6 +16,10 @@ logging.basicConfig(
     level=logging.INFO)
 
 
+def normalize_special_char(txt):
+    return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('ASCII')
+
+
 def search_youtube(text):
     url = 'https://www.youtube.com'
 
@@ -23,7 +28,7 @@ def search_youtube(text):
     for tag in soup.find_all('a', {'rel': 'spf-prefetch'}):
         title, video_url = tag.text, url + tag['href']
         if 'googleads' not in video_url:
-            return title, video_url
+            return normalize_special_char(title), video_url
 
 
 def download(title, video_url):
@@ -40,7 +45,7 @@ def download(title, video_url):
         ydl.download([video_url])
 
     return {
-        'audio': open('{}.mp3'.format(title), 'rb'),
+        'audio': open(title + '.mp3', 'rb'),
         'title': title,
     }
 
