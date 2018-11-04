@@ -14,7 +14,7 @@ $ cd musicbot
 Install dependencies
 
 ```
-$ pip3 install -r requirements.txt
+$ pipenv shell && pipenv install
 ```
 Get a bot token from [@BotFather](http://telegram.me/BotFather) and replace YOUR-TOKEN in `bot.py` with the token you just got.
 
